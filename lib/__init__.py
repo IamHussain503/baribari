@@ -81,4 +81,3 @@ from . import reward
 from . import clone_score
 from . import utils
 from . import subjective
-from . import globals

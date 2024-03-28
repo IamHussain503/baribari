@@ -51,7 +51,7 @@ class MusicGenerationService(AIModelService):
         
     async def run_async(self):
         step = 0
-        while self.service_flags["MusicGenerationService"]:
+        while self.music:
             try:
                 await self.main_loop_logic(step)
                 step += 1
@@ -135,8 +135,8 @@ class MusicGenerationService(AIModelService):
                 self.punish(axon, service="Text-To-Music", punish_message=response.dendrite.status_message)
             else:
                 pass
-            self.service_flags["MusicGenerationService"] = False
-            self.service_flags["VoiceCloningService"] = True
+            self.music = False
+            self.vc = True
         except Exception as e:
             bt.logging.error(f'An error occurred while handling speech output: {e}')
 

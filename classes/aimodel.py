@@ -24,7 +24,6 @@ import subprocess
 from huggingface_hub import hf_hub_download
 from lib import __spec_version__ as spec_version
 from classes.corcel_prompt import CorcelAPI
-from lib.globals import SERVICE_FLAGS
 import datetime as dt
 import wandb
 
@@ -42,9 +41,11 @@ class AIModelService:
         self.subtensor = bt.subtensor(config=self.config)
         self.dendrite = bt.dendrite(wallet=self.wallet)
         self.metagraph = self.subtensor.metagraph(self.config.netuid)
-        self.service_flags = SERVICE_FLAGS
         self.last_run_start_time = dt.datetime.now()
-
+        self.tts = True
+        self.music = False
+        self.vc = False
+        
         if not AIModelService._base_initialized:
             bt.logging.info(f"Wallet: {self.wallet}")
             bt.logging.info(f"Subtensor: {self.subtensor}")
