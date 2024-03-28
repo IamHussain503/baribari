@@ -29,28 +29,29 @@ audio_subnet_path = os.path.abspath(project_root)
 # Add the project root and 'AudioSubnet' directories to sys.path
 sys.path.insert(0, project_root)
 sys.path.insert(0, audio_subnet_path)
-from classes.aimodel import AIModelService
 from classes.tts import TextToSpeechService 
 from classes.vc import VoiceCloningService
 from classes.ttm import MusicGenerationService
 
-def main():
-    ai_model_service = AIModelService()  # Assuming AIModelService is adapted to manage service state and execution
-    
-    while True:
-        if ai_model_service.tts:
-            TextToSpeechService.run_sync()  # Hypothetical synchronous wrapper
-            ai_model_service.tts = False
-            ai_model_service.music = True
-        elif ai_model_service.music:
-            MusicGenerationService.run_sync()  # Hypothetical synchronous wrapper
-            ai_model_service.music = False
-            ai_model_service.vc = True
-        elif ai_model_service.vc:
-            VoiceCloningService.run_sync()  # Hypothetical synchronous wrapper
-            ai_model_service.vc = False
-            ai_model_service.tts = True
+class AIModelController:
+    def __init__(self):
+        self.text_to_speech_service = TextToSpeechService()
+        self.music_generation_service = MusicGenerationService()
+        self.voice_cloning_service = VoiceCloningService()
+        self.current_service = self.text_to_speech_service
 
+    def run_services(self):
+        while True:
+            if isinstance(self.current_service, TextToSpeechService):
+                self.current_service.run_sync()
+                self.current_service = self.music_generation_service
+            elif isinstance(self.current_service, MusicGenerationService):
+                self.current_service.run_sync()
+                self.current_service = self.voice_cloning_service
+            elif isinstance(self.current_service, VoiceCloningService):
+                self.current_service.run_sync()
+                self.current_service = self.text_to_speech_service
 
 if __name__ == "__main__":
-    asyncio.run(main())
+    controller = AIModelController()
+    controller.run_services()
