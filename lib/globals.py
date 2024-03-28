@@ -1,5 +1,5 @@
 SERVICE_FLAGS = {
-    "TextToSpeechService": False,
+    "TextToSpeechService": True,
     "MusicGenerationService": False,
     "VoiceCloningService": False,
 }
