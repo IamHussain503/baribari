@@ -29,32 +29,28 @@ audio_subnet_path = os.path.abspath(project_root)
 # Add the project root and 'AudioSubnet' directories to sys.path
 sys.path.insert(0, project_root)
 sys.path.insert(0, audio_subnet_path)
-
+from classes.aimodel import AIModelService
 from classes.tts import TextToSpeechService 
 from classes.vc import VoiceCloningService
 from classes.ttm import MusicGenerationService
 
-async def main():
-    services = [
-        TextToSpeechService(),
-        MusicGenerationService(),
-        VoiceCloningService(),
-    ]
+def main():
+    ai_model_service = AIModelService()  # Assuming AIModelService is adapted to manage service state and execution
+    
+    while True:
+        if ai_model_service.tts:
+            TextToSpeechService.run_sync()  # Hypothetical synchronous wrapper
+            ai_model_service.tts = False
+            ai_model_service.music = True
+        elif ai_model_service.music:
+            MusicGenerationService.run_sync()  # Hypothetical synchronous wrapper
+            ai_model_service.music = False
+            ai_model_service.vc = True
+        elif ai_model_service.vc:
+            VoiceCloningService.run_sync()  # Hypothetical synchronous wrapper
+            ai_model_service.vc = False
+            ai_model_service.tts = True
 
-    # Initialize an empty list to hold our tasks
-    tasks = []
-
-    # Iterate through each service and create an asynchronous task for its run_async method
-    for service in services:
-        # if isinstance(service, TextToSpeechService):
-        #     service.new_wandb_run()  # Initialize the Weights & Biases run if the service is TextToSpeechService
-        task = asyncio.create_task(service.run_async())
-        tasks.append(task)
-
-        await asyncio.sleep(0.1)  # Short delay between task initializations if needed
-
-    # Wait for all tasks to complete
-    await asyncio.gather(*tasks)
 
 if __name__ == "__main__":
     asyncio.run(main())

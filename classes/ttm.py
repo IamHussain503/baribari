@@ -135,8 +135,8 @@ class MusicGenerationService(AIModelService):
                 self.punish(axon, service="Text-To-Music", punish_message=response.dendrite.status_message)
             else:
                 pass
-            self.music = False
-            self.vc = True
+            # self.music = False
+            # self.vc = True
         except Exception as e:
             bt.logging.error(f'An error occurred while handling speech output: {e}')
 
