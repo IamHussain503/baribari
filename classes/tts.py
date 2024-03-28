@@ -187,7 +187,7 @@ class TextToSpeechService(AIModelService):
                 pass
             self.service_flags["TextToSpeechService"] = False
             self.service_flags["MusicGenerationService"] = True
-            bt.logging.info(f"Switching to Music Generation Service...................{self.service_flags["MusicGenerationService"]}")
+            bt.logging.info(f"Switching to Music Generation Service.................")
         except Exception as e:
             bt.logging.error(f'An error occurred while handling speech output: {e}')
 
