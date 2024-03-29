@@ -185,8 +185,8 @@ class TextToSpeechService(AIModelService):
                 self.punish(axon, service="Text-To-Speech", punish_message=response.dendrite.status_message)
             else:
                 pass
-            # self.tts = False
-            # self.music = True
+            self.tts = False
+            self.music = True
             bt.logging.info(f"Switching to Music Generation Service.................")
         except Exception as e:
             bt.logging.error(f'An error occurred while handling speech output: {e}')
