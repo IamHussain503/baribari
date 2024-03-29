@@ -173,6 +173,10 @@ class TextToSpeechService(AIModelService):
         
         bt.logging.info(f"Scores after update in TTS: {self.scores}")
         self.update_block()
+        self.service_flags["TextToSpeechService"] = False
+        self.service_flags["MusicGenerationService"] = True
+        bt.logging.info(f"Switching to Music Generation Service...................")
+
 
 
     def process_response(self, axon, response, prompt):
@@ -185,9 +189,6 @@ class TextToSpeechService(AIModelService):
                 self.punish(axon, service="Text-To-Speech", punish_message=response.dendrite.status_message)
             else:
                 pass
-            self.service_flags["TextToSpeechService"] = False
-            self.service_flags["MusicGenerationService"] = True
-            bt.logging.info(f"Switching to Music Generation Service...................{self.service_flags["MusicGenerationService"]}")
         except Exception as e:
             bt.logging.error(f'An error occurred while handling speech output: {e}')
 
