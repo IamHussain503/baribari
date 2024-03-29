@@ -25,8 +25,6 @@ from huggingface_hub import hf_hub_download
 from lib import __spec_version__ as spec_version
 from classes.corcel_prompt import CorcelAPI
 from lib.globals import SERVICE_FLAGS
-import datetime as dt
-import wandb
 
 class AIModelService:
     _scores = None
@@ -43,15 +41,12 @@ class AIModelService:
         self.dendrite = bt.dendrite(wallet=self.wallet)
         self.metagraph = self.subtensor.metagraph(self.config.netuid)
         self.service_flags = SERVICE_FLAGS
-        self.last_run_start_time = dt.datetime.now()
 
         if not AIModelService._base_initialized:
             bt.logging.info(f"Wallet: {self.wallet}")
             bt.logging.info(f"Subtensor: {self.subtensor}")
             bt.logging.info(f"Dendrite: {self.dendrite}")
             bt.logging.info(f"Metagraph: {self.metagraph}")
-            bt.logging.info(f"Intializing wandb run")
-            self.check_and_update_wandb_run()
 
             AIModelService._base_initialized = True
         self.api = CorcelAPI()
@@ -82,40 +77,6 @@ class AIModelService:
         config = bt.config(parser)
         return config
     
-    def check_and_update_wandb_run(self):
-        # Calculate the time difference between now and the last run start time
-        current_time = dt.datetime.now()
-        time_diff = current_time - self.last_run_start_time
-        # Check if 4 hours have passed since the last run start time
-        if time_diff.total_seconds() >= 4 * 3600:  # 4 hours * 3600 seconds/hour
-            self.last_run_start_time = current_time  # Update the last run start time to now
-            if self.wandb_run:
-                wandb.finish()  # End the current run
-            self.new_wandb_run()  # Start a new run
-
-    def new_wandb_run(self):
-        now = dt.datetime.now()
-        run_id = now.strftime("%Y-%m-%d_%H-%M-%S")
-        name = f"Validator-{self.uid}-{run_id}"
-        commit = self.get_git_commit_hash()
-        self.wandb_run = wandb.init(
-            name=name,
-            project="AudioSubnet_Valid",
-            entity="subnet16team",
-            config={
-                "uid": self.uid,
-                "hotkey": self.wallet.hotkey.ss58_address,
-                "run_name": run_id,
-                "type": "Validator",
-                "tao (stake)": self.tao,
-                "commit": commit,
-            },
-            tags=self.sys_info,
-            allow_val_change=True,
-            anonymous="allow",
-        )
-        bt.logging.debug(f"Started a new wandb run: {name}")
-
     def priority_uids(self, metagraph):
         hotkeys = metagraph.hotkeys  # List of hotkeys
         coldkeys = metagraph.coldkeys  # List of coldkeys
