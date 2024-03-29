@@ -44,16 +44,16 @@ class AIModelController:
         self.current_service = self.text_to_speech_service
         self.service = service_flags
 
-    def run_services(self):
+    async def run_services(self):
         while True:
             if isinstance(self.current_service, TextToSpeechService) and self.service["TextToSpeechService"]:
-                self.current_service.run_async()
+                await self.current_service.run_async()
                 self.current_service = self.music_generation_service
             elif isinstance(self.current_service, MusicGenerationService) and self.service["MusicGenerationService"]:
-                self.current_service.run_async()
+                await self.current_service.run_async()
                 self.current_service = self.voice_cloning_service
             elif isinstance(self.current_service, VoiceCloningService) and self.service["VoiceCloningService"]:
-                self.current_service.run_async()
+                await self.current_service.run_async()
                 self.current_service = self.text_to_speech_service
 
 if __name__ == "__main__":
