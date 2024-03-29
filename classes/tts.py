@@ -52,7 +52,7 @@ class TextToSpeechService(AIModelService):
                 await self.main_loop_logic(step)
                 step += 1
                 await asyncio.sleep(0.5)  # Adjust the sleep time as needed
-                if self.current_block % 15 == 0 and self.config.auto_update == 'yes':
+                if self.last_reset_weights_block + 20 < self.current_block and self.config.auto_update == 'yes':
                     bt.logging.info(f"Auto update weights at block: {self.current_block}")
                     lib.utils.try_update()
             except KeyboardInterrupt:
