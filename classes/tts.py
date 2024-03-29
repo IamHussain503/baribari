@@ -268,12 +268,16 @@ class TextToSpeechService(AIModelService):
             self.get_filtered_axons()
 
         if self.combinations:
+            bt.logging.info(f"Current Combination for TTS before -------------- : {current_combination}")
             current_combination = self.combinations.pop(0)
+            bt.logging.info(f"Current Combination for TTS after popping +++++++++++: {current_combination}")
             bt.logging.info(f"Current Combination for TTS: {current_combination}")
             filtered_axons = [self.metagraph.axons[i] for i in current_combination]
         else:
             self.get_filtered_axons()
+            bt.logging.info(f"Current Combination for TTS before -------------- : {current_combination}")
             current_combination = self.combinations.pop(0)
+            bt.logging.info(f"Current Combination for TTS after popping +++++++++++: {current_combination}")
             bt.logging.info(f"Current Combination for TTS: {current_combination}")
             filtered_axons = [self.metagraph.axons[i] for i in current_combination]
 

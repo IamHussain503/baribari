@@ -226,18 +226,22 @@ class VoiceCloningService(AIModelService):
         except Exception as e:
             bt.logging.error(f"Error scoring output: {e}")
             return 0.0  # Return a default score in case of an error
-        
+    
     def get_filtered_axons_from_combinations(self):
         if not self.combinations:
             self.get_filtered_axons()
 
         if self.combinations:
+            bt.logging.info(f"Current Combination for VC before -------------- : {current_combination}")
             current_combination = self.combinations.pop(0)
+            bt.logging.info(f"Current Combination for VC after popping +++++++++++: {current_combination}")
             bt.logging.info(f"Current Combination for VC: {current_combination}")
             filtered_axons = [self.metagraph.axons[i] for i in current_combination]
         else:
             self.get_filtered_axons()
+            bt.logging.info(f"Current Combination for VC before -------------- : {current_combination}")
             current_combination = self.combinations.pop(0)
+            bt.logging.info(f"Current Combination for VC after popping +++++++++++: {current_combination}")
             bt.logging.info(f"Current Combination for VC: {current_combination}")
             filtered_axons = [self.metagraph.axons[i] for i in current_combination]
 
