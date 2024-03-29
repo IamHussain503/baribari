@@ -174,7 +174,10 @@ class TextToSpeechService(AIModelService):
         bt.logging.info(f"Scores after update in TTS: {self.scores}")
         self.update_block()
         self.service_flags["TextToSpeechService"] = False
+        print("TEXTTTTTTTTTTTTTTTTTTT",self.service_flags["TextToSpeechService"])
         self.service_flags["MusicGenerationService"] = True
+        print("MUSICCCCCCCCCCCCCCCCCCC",self.service_flags["MusicGenerationService"])
+
         bt.logging.info(f"Switching to Music Generation Service...................")
 
 
