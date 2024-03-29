@@ -46,8 +46,8 @@ async def main():
 
     # Iterate through each service and create an asynchronous task for its run_async method
     for service in services:
-        # if isinstance(service, TextToSpeechService):
-        #     service.new_wandb_run()  # Initialize the Weights & Biases run if the service is TextToSpeechService
+        if isinstance(service, TextToSpeechService):
+            service.new_wandb_run()  # Initialize the Weights & Biases run if the service is TextToSpeechService
         task = asyncio.create_task(service.run_async())
         tasks.append(task)
 
