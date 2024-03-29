@@ -58,4 +58,4 @@ class AIModelController:
 
 if __name__ == "__main__":
     controller = AIModelController()
-    controller.run_services()
+    asyncio.run(controller.run_services())
