@@ -43,7 +43,6 @@ class AIModelService:
         self.dendrite = bt.dendrite(wallet=self.wallet)
         self.metagraph = self.subtensor.metagraph(self.config.netuid)
         self.service_flags = service_flags
-        self.last_run_start_time = dt.datetime.now()
 
         if not AIModelService._base_initialized:
             bt.logging.info(f"Wallet: {self.wallet}")
