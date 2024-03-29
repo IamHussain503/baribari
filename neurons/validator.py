@@ -38,14 +38,20 @@ class AIModelController:
         self.text_to_speech_service = TextToSpeechService()
         self.music_generation_service = MusicGenerationService()
         self.voice_cloning_service = VoiceCloningService()
+        self.current_service = self.text_to_speech_service
 
-    async def run_services(self):
+    def run_services(self):
         while True:
-            await self.text_to_speech_service.run_async()
-            await self.music_generation_service.run_async()
-            await self.voice_cloning_service.run_async()
+            if isinstance(self.current_service, TextToSpeechService):
+                self.current_service.run_async()
+                self.current_service = self.music_generation_service
+            elif isinstance(self.current_service, MusicGenerationService):
+                self.current_service.run_async()
+                self.current_service = self.voice_cloning_service
+            elif isinstance(self.current_service, VoiceCloningService):
+                self.current_service.run_async()
+                self.current_service = self.text_to_speech_service
 
 if __name__ == "__main__":
     controller = AIModelController()
-    import asyncio
-    asyncio.run(controller.run_services())
+    controller.run_services()
