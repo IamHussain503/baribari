@@ -30,31 +30,32 @@ audio_subnet_path = os.path.abspath(project_root)
 sys.path.insert(0, project_root)
 sys.path.insert(0, audio_subnet_path)
 
+from lib.globals import service_flags
 from classes.tts import TextToSpeechService 
 from classes.vc import VoiceCloningService
 from classes.ttm import MusicGenerationService
 
-async def main():
-    services = [
-        TextToSpeechService(),
-        MusicGenerationService(),
-        VoiceCloningService(),
-    ]
 
-    # Initialize an empty list to hold our tasks
-    tasks = []
+class AIModelController:
+    def __init__(self):
+        self.text_to_speech_service = TextToSpeechService()
+        self.music_generation_service = MusicGenerationService()
+        self.voice_cloning_service = VoiceCloningService()
+        self.current_service = self.text_to_speech_service
+        self.service = service_flags
 
-    # Iterate through each service and create an asynchronous task for its run_async method
-    for service in services:
-        # if isinstance(service, TextToSpeechService):
-        #     service.new_wandb_run()  # Initialize the Weights & Biases run if the service is TextToSpeechService
-        task = asyncio.create_task(service.run_async())
-        tasks.append(task)
-
-        await asyncio.sleep(0.1)  # Short delay between task initializations if needed
-
-    # Wait for all tasks to complete
-    await asyncio.gather(*tasks)
+    def run_services(self):
+        while True:
+            if isinstance(self.current_service, TextToSpeechService) and self.service["TextToSpeechService"]:
+                self.current_service.run_async()
+                self.current_service = self.music_generation_service
+            elif isinstance(self.current_service, MusicGenerationService) and self.service["MusicGenerationService"]:
+                self.current_service.run_async()
+                self.current_service = self.voice_cloning_service
+            elif isinstance(self.current_service, VoiceCloningService) and self.service["VoiceCloningService"]:
+                self.current_service.run_async()
+                self.current_service = self.text_to_speech_service
 
 if __name__ == "__main__":
-    asyncio.run(main())
+    controller = AIModelController()
+    controller.run_services()
