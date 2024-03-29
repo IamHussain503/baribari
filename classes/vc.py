@@ -65,7 +65,7 @@ class VoiceCloningService(AIModelService):
     async def run_async(self):
         step = 0
         running_tasks = []
-        while self.vc:
+        while self.service_flags["VoiceCloningService"]:
             try:
                 new_tasks = await self.main_loop_logic(step)
                 running_tasks.extend(new_tasks)
@@ -149,8 +149,8 @@ class VoiceCloningService(AIModelService):
             # Process the responses if needed
             processed_vc_file = self.process_voice_clone_responses(filtered_axons, text_input, input_file)
             bt.logging.info(f"Updated Scores for Voice Cloning: {self.scores}")
-            self.vc = False
-            self.tts = True
+            self.service_flags["VoiceCloningService"] = False
+            self.service_flags["TextToSpeechService"] = True
             return processed_vc_file
         except Exception as e:
             print(f"An error occurred while processing the voice clone: {e}")

@@ -84,7 +84,7 @@ class TextToSpeechService(AIModelService):
 
     async def run_async(self):
         step = 0
-        while self.tts:
+        while self.service_flags["TextToSpeechService"]:
             try:
                 await self.main_loop_logic(step)
                 step += 1
@@ -185,8 +185,8 @@ class TextToSpeechService(AIModelService):
                 self.punish(axon, service="Text-To-Speech", punish_message=response.dendrite.status_message)
             else:
                 pass
-            self.tts = False
-            self.music = True
+            self.service_flags["TextToSpeechService"] = False
+            self.service_flags["MusicGenerationService"] = True
             bt.logging.info(f"Switching to Music Generation Service.................")
         except Exception as e:
             bt.logging.error(f'An error occurred while handling speech output: {e}')
