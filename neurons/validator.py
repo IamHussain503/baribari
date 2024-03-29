@@ -90,7 +90,7 @@ class AIModelController():
                 "hotkey": self.aimodel.wallet.hotkey.ss58_address,
                 "run_name": run_id,
                 "type": "Validator",
-                "tao (stake)": self.aimodel.metagraph.neurons[self.uid].stake.tao,
+                "tao (stake)": self.aimodel.metagraph.neurons[self.aimodel.uid].stake.tao,
                 "commit": commit,
             },
             tags=self.aimodel.sys_info,
