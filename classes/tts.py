@@ -46,7 +46,7 @@ class TextToSpeechService(AIModelService):
         return self.prompts
         
     async def run_async(self):
-        step = 0
+        step = 1
         while self.service_flags["TextToSpeechService"]:
             try:
                 await self.main_loop_logic(step)
