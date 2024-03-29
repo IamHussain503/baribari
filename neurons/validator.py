@@ -101,8 +101,8 @@ class AIModelController():
 
 async def main():
     controller = AIModelController()
-    await controller.run_services()
     await controller.new_wandb_run()
+    await controller.run_services()
 
 if __name__ == "__main__":
     asyncio.run(main())
