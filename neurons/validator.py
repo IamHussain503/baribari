@@ -48,6 +48,7 @@ class AIModelController():
         self.voice_cloning_service = VoiceCloningService()
         self.current_service = self.text_to_speech_service
         self.service = service_flags
+        self.last_run_start_time = dt.datetime.now()
         self.check_and_update_wandb_run()
 
     async def run_services(self):
@@ -74,6 +75,7 @@ class AIModelController():
             self.new_wandb_run()  # Start a new run
 
     def new_wandb_run(self):
+        bt.logging.debug("Starting a new wandb run")
         now = dt.datetime.now()
         run_id = now.strftime("%Y-%m-%d_%H-%M-%S")
         name = f"Validator-{self.uid}-{run_id}"
