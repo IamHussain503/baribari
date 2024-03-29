@@ -101,7 +101,7 @@ class AIModelController():
 
 async def main():
     controller = AIModelController()
-    await controller.new_wandb_run()
+    controller.new_wandb_run()
     await controller.run_services()
 
 if __name__ == "__main__":
