@@ -51,10 +51,6 @@ class TextToSpeechService(AIModelService):
             try:
                 await self.main_loop_logic(step)
                 step += 1
-                await asyncio.sleep(0.5)  # Adjust the sleep time as needed
-                if self.last_reset_weights_block + 20 < self.current_block and self.config.auto_update == 'yes':
-                    bt.logging.info(f"Auto update weights at block: {self.current_block}")
-                    lib.utils.try_update()
             except KeyboardInterrupt:
                 print("Keyboard interrupt detected. Exiting TextToSpeechService.")
                 break
@@ -78,14 +74,14 @@ class TextToSpeechService(AIModelService):
             async with self.lock:
                 # Use the API prompt if available; otherwise, load prompts from HuggingFace
                 if c_prompt:
-                    bt.logging.info(f"--------------------------------- Prompt are being used from Corcel API for Text-To-Speech at Step: {step} --------------------------------- ")
+                    bt.logging.info(f"--------------------------------- Prompt are being used from Corcel API for Text-To-Speech --------------------------------- ")
                     g_prompt = self.convert_numeric_values(c_prompt)  # Use the prompt from the API
                     bt.logging.info(f"______________TTS-Prompt coming from Corcel______________: {g_prompt}")
                     if len(g_prompt) > 256:
                         pass
                 else:
                     # Fetch prompts from HuggingFace if API failed
-                    bt.logging.info(f"--------------------------------- Prompt are being used from HuggingFace Dataset for Text-To-Speech at Step: {step} --------------------------------- ")
+                    bt.logging.info(f"--------------------------------- Prompt are being used from HuggingFace Dataset for Text-To-Speech --------------------------------- ")
                     g_prompt = self.load_prompts()
                     g_prompt = random.choice(g_prompt)  # Choose a random prompt from HuggingFace
                     g_prompt = self.convert_numeric_values(g_prompt)
@@ -101,7 +97,10 @@ class TextToSpeechService(AIModelService):
                 self.process_responses(filtered_axons, responses, g_prompt)
 
                 if self.last_reset_weights_block + 50 < self.current_block:
-                    bt.logging.trace(f"Clearing weights for validators and nodes without IPs")
+                    bt.logging.info(f"Checking for updates ")                    
+                    if self.config.auto_update == 'yes':
+                        lib.utils.try_update()
+                    bt.logging.info(f"Resetting weights for validators and nodes without IPs")
                     self.last_reset_weights_block = self.current_block        
                     # set all nodes without ips set to 0
                     self.scores = self.scores * torch.Tensor([self.metagraph.neurons[uid].axon_info.ip != '0.0.0.0' for uid in self.metagraph.uids])
