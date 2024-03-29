@@ -68,7 +68,7 @@ class AIModelController():
         current_time = dt.datetime.now()
         time_diff = current_time - self.last_run_start_time
         # Check if 4 hours have passed since the last run start time
-        if time_diff.total_seconds() >= 60 * 60:  # 4 hours * 3600 seconds/hour
+        if time_diff.total_seconds() >= 4 * 3600:  # 4 hours * 3600 seconds/hour
             self.last_run_start_time = current_time  # Update the last run start time to now
             if self.wandb_run:
                 wandb.finish()  # End the current run
@@ -89,7 +89,7 @@ class AIModelController():
                 "hotkey": self.aimodel.wallet.hotkey.ss58_address,
                 "run_name": run_id,
                 "type": "Validator",
-                "tao (stake)": self.aimodel.tao,
+                "tao (stake)": self.aimodel.metagraph.neurons[self.uid].stake.tao,
                 "commit": commit,
             },
             tags=self.aimodel.sys_info,
