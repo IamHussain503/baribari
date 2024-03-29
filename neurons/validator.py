@@ -79,7 +79,7 @@ class AIModelController():
         bt.logging.debug("Starting a new wandb run")
         now = dt.datetime.now()
         run_id = now.strftime("%Y-%m-%d_%H-%M-%S")
-        name = f"Validator-{self.uid}-{run_id}"
+        name = f"Validator-{self.aimodel.uid}-{run_id}"
         commit = self.aimodel.get_git_commit_hash()
         self.wandb_run = wandb.init(
             name=name,
