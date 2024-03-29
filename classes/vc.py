@@ -86,17 +86,17 @@ class VoiceCloningService(AIModelService):
         except Exception as e:
             bt.logging.error(f"An error occurred while fetching prompt: {e}")
             c_prompt = None
-        if step % 300 == 0:
+        if step:
             async with self.lock:
                 if c_prompt:
-                    bt.logging.info(f"--------------------------------- Prompt and voices are being used from Corcel API for Voice Clone at Step: {step} ---------------------------------")
+                    bt.logging.info(f"--------------------------------- Prompt and voices are being used from Corcel API for Voice Clone ---------------------------------")
                     self.text_input = self.convert_numeric_values(c_prompt)  # Use the prompt from the API
                     bt.logging.info(f"______________VC-Prompt coming from Corcel______________: {self.text_input}")
                     if len(c_prompt) > 256:
                         pass
                 else:
                     # Fetch prompts from HuggingFace if API failed
-                    bt.logging.info(f"--------------------------------- Prompt and voices are being used from HuggingFace Dataset for Voice Clone at Step: {step} ---------------------------------")
+                    bt.logging.info(f"--------------------------------- Prompt and voices are being used from HuggingFace Dataset for Voice Clone ---------------------------------")
                     self.text_input = random.choice(self.prompts)
                     self.text_input = self.convert_numeric_values(self.text_input)
                 while len(self.text_input) > 256:
@@ -144,7 +144,7 @@ class VoiceCloningService(AIModelService):
                 filtered_axons,
                 lib.protocol.VoiceClone(text_input=text_input, clone_input=clone_input, sample_rate=sample_rate, hf_voice_id="name"), 
                 deserialize=True,
-                timeout=15,
+                timeout=150,
             )
             # Process the responses if needed
             processed_vc_file = self.process_voice_clone_responses(filtered_axons, text_input, input_file)
@@ -232,16 +232,12 @@ class VoiceCloningService(AIModelService):
             self.get_filtered_axons()
 
         if self.combinations:
-            bt.logging.info(f"Current Combination for VC before -------------- : {self.combinations}")
             current_combination = self.combinations.pop(0)
-            bt.logging.info(f"Current Combination for VC after popping +++++++++++: {current_combination}")
             bt.logging.info(f"Current Combination for VC: {current_combination}")
             filtered_axons = [self.metagraph.axons[i] for i in current_combination]
         else:
             self.get_filtered_axons()
-            bt.logging.info(f"Current Combination for VC before -------------- : {self.combinations}")
             current_combination = self.combinations.pop(0)
-            bt.logging.info(f"Current Combination for VC after popping +++++++++++: {current_combination}")
             bt.logging.info(f"Current Combination for VC: {current_combination}")
             filtered_axons = [self.metagraph.axons[i] for i in current_combination]
 

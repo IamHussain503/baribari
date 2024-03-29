@@ -64,7 +64,6 @@ class AIModelController():
                 self.current_service = self.text_to_speech_service
 
     def check_and_update_wandb_run(self):
-        bt.logging.debug("Checking and updating wandb run")
         # Calculate the time difference between now and the last run start time
         current_time = dt.datetime.now()
         time_diff = current_time - self.last_run_start_time
@@ -76,7 +75,6 @@ class AIModelController():
             self.new_wandb_run()  # Start a new run
 
     def new_wandb_run(self):
-        bt.logging.debug("Starting a new wandb run")
         now = dt.datetime.now()
         run_id = now.strftime("%Y-%m-%d_%H-%M-%S")
         name = f"Validator-{self.aimodel.uid}-{run_id}"

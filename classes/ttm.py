@@ -55,9 +55,6 @@ class MusicGenerationService(AIModelService):
             try:
                 await self.main_loop_logic(step)
                 step += 1
-                await asyncio.sleep(0.5)  # Adjust the sleep time as needed
-                if step % 500 == 0:
-                    lib.utils.try_update()
             except KeyboardInterrupt:
                 print("Keyboard interrupt detected. Exiting MusicGenerationService.")
                 break
@@ -72,12 +69,8 @@ class MusicGenerationService(AIModelService):
         except Exception as e:
             bt.logging.error(f"An error occurred while fetching prompt: {e}")
             c_prompt = None
-        # Sync and update weights logic
-        if step % 10 == 0:
-            self.metagraph.sync(subtensor=self.subtensor)
-            self.best_uid = self.priority_uids(self.metagraph)
 
-        if step % 5 == 0:
+        if step:
             async with self.lock:
                 # Use the API prompt if available; otherwise, load prompts from HuggingFace
                 if c_prompt:
@@ -100,12 +93,6 @@ class MusicGenerationService(AIModelService):
                 responses = self.query_network(filtered_axons,g_prompt)
                 self.process_responses(filtered_axons,responses, g_prompt)
 
-                if self.last_reset_weights_block + 1800 < self.current_block:
-                    bt.logging.info(f"Clearing weights for validators and nodes without IPs")
-                    self.last_reset_weights_block = self.current_block        
-                    # set all nodes without ips set to 0
-                    self.scores = self.scores * torch.Tensor([self.metagraph.neurons[uid].axon_info.ip != '0.0.0.0' for uid in self.metagraph.uids])
-    
     def query_network(self,filtered_axons, prompt):
         # Network querying logic
         
@@ -113,7 +100,7 @@ class MusicGenerationService(AIModelService):
             filtered_axons,
             lib.protocol.MusicGeneration(text_input=prompt, duration=self.duration ),
             deserialize=True,
-            timeout=14,
+            timeout=140,
         )
         return responses
     
@@ -239,16 +226,12 @@ class MusicGenerationService(AIModelService):
             self.get_filtered_axons()
 
         if self.combinations:
-            bt.logging.info(f"Current Combination for TTM before -------------- : {self.combinations}")
             current_combination = self.combinations.pop(0)
-            bt.logging.info(f"Current Combination for TTM after popping +++++++++++: {current_combination}")
             bt.logging.info(f"Current Combination for TTM: {current_combination}")
             filtered_axons = [self.metagraph.axons[i] for i in current_combination]
         else:
             self.get_filtered_axons()
-            bt.logging.info(f"Current Combination for TTM before -------------- : {self.combinations}")
             current_combination = self.combinations.pop(0)
-            bt.logging.info(f"Current Combination for TTM after popping +++++++++++: {current_combination}")
             bt.logging.info(f"Current Combination for TTM: {current_combination}")
             filtered_axons = [self.metagraph.axons[i] for i in current_combination]
 
