@@ -81,8 +81,8 @@ class AIModelController():
         commit = self.aimodel.get_git_commit_hash()
         self.wandb_run = wandb.init(
             name=name,
-            project="subnet16",
-            entity="testingforsubnet16",
+            project="AudioSubnet_Valid",
+            entity="subnet16team",
             config={
                 "uid": self.aimodel.uid,
                 "hotkey": self.aimodel.wallet.hotkey.ss58_address,
