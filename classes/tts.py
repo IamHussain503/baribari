@@ -37,8 +37,6 @@ class TextToSpeechService(AIModelService):
         self.last_updated_block = self.current_block - (self.current_block % 100)
         self.last_reset_weights_block = self.current_block
         self.p_index = 0
-        # self.last_run_start_time = dt.datetime.now()
-        self.tao = self.metagraph.neurons[self.uid].stake.tao
         self.combinations = []
         self.lock = asyncio.Lock()
         
@@ -47,41 +45,6 @@ class TextToSpeechService(AIModelService):
         self.prompts = gs_dev['train']['text']
         return self.prompts
         
-        
-    # def check_and_update_wandb_run(self):
-    #     # Calculate the time difference between now and the last run start time
-    #     current_time = dt.datetime.now()
-    #     time_diff = current_time - self.last_run_start_time
-    #     # Check if 4 hours have passed since the last run start time
-    #     if time_diff.total_seconds() >= 4 * 3600:  # 4 hours * 3600 seconds/hour
-    #         self.last_run_start_time = current_time  # Update the last run start time to now
-    #         if self.wandb_run:
-    #             wandb.finish()  # End the current run
-    #         self.new_wandb_run()  # Start a new run
-
-    # def new_wandb_run(self):
-    #     now = dt.datetime.now()
-    #     run_id = now.strftime("%Y-%m-%d_%H-%M-%S")
-    #     name = f"Validator-{self.uid}-{run_id}"
-    #     commit = self.get_git_commit_hash()
-    #     self.wandb_run = wandb.init(
-    #         name=name,
-    #         project="AudioSubnet_Valid",
-    #         entity="subnet16team",
-    #         config={
-    #             "uid": self.uid,
-    #             "hotkey": self.wallet.hotkey.ss58_address,
-    #             "run_name": run_id,
-    #             "type": "Validator",
-    #             "tao (stake)": self.tao,
-    #             "commit": commit,
-    #         },
-    #         tags=self.sys_info,
-    #         allow_val_change=True,
-    #         anonymous="allow",
-    #     )
-    #     bt.logging.debug(f"Started a new wandb run: {name}")
-
     async def run_async(self):
         step = 0
         while self.service_flags["TextToSpeechService"]:
@@ -89,7 +52,8 @@ class TextToSpeechService(AIModelService):
                 await self.main_loop_logic(step)
                 step += 1
                 await asyncio.sleep(0.5)  # Adjust the sleep time as needed
-                if step % 50 == 0 and self.config.auto_update == 'yes':
+                if self.current_block % 15 == 0 and self.config.auto_update == 'yes':
+                    bt.logging.info(f"Auto update weights at block: {self.current_block}")
                     lib.utils.try_update()
             except KeyboardInterrupt:
                 print("Keyboard interrupt detected. Exiting TextToSpeechService.")
@@ -106,11 +70,11 @@ class TextToSpeechService(AIModelService):
             bt.logging.error(f"An error occurred while fetching prompt: {e}")
             c_prompt = None
         # Sync and update weights logic
-        if step % 10 == 0:
+        if step:
             self.metagraph.sync(subtensor=self.subtensor)
             bt.logging.info(f"🔄 Syncing metagraph with subtensor.")
         
-        if step % 5 == 0:
+        if step:
             async with self.lock:
                 # Use the API prompt if available; otherwise, load prompts from HuggingFace
                 if c_prompt:
@@ -154,7 +118,6 @@ class TextToSpeechService(AIModelService):
         return responses
     
     def update_block(self):
-        self.current_block = self.subtensor.block
         if self.current_block - self.last_updated_block > 150:
             bt.logging.info(f"Updating weights. Last update was at block {self.last_updated_block}")
             bt.logging.info(f"Current block is {self.current_block}")
@@ -174,13 +137,7 @@ class TextToSpeechService(AIModelService):
         bt.logging.info(f"Scores after update in TTS: {self.scores}")
         self.update_block()
         self.service_flags["TextToSpeechService"] = False
-        print("TEXTTTTTTTTTTTTTTTTTTT",self.service_flags["TextToSpeechService"])
         self.service_flags["MusicGenerationService"] = True
-        print("MUSICCCCCCCCCCCCCCCCCCC",self.service_flags["MusicGenerationService"])
-
-        bt.logging.info(f"Switching to Music Generation Service...................")
-
-
 
     def process_response(self, axon, response, prompt):
         try:
