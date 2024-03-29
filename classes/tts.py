@@ -37,7 +37,7 @@ class TextToSpeechService(AIModelService):
         self.last_updated_block = self.current_block - (self.current_block % 100)
         self.last_reset_weights_block = self.current_block
         self.p_index = 0
-        # self.last_run_start_time = dt.datetime.now()
+        self.last_run_start_time = dt.datetime.now()
         self.tao = self.metagraph.neurons[self.uid].stake.tao
         self.combinations = []
         self.lock = asyncio.Lock()
@@ -48,39 +48,39 @@ class TextToSpeechService(AIModelService):
         return self.prompts
         
         
-    # def check_and_update_wandb_run(self):
-    #     # Calculate the time difference between now and the last run start time
-    #     current_time = dt.datetime.now()
-    #     time_diff = current_time - self.last_run_start_time
-    #     # Check if 4 hours have passed since the last run start time
-    #     if time_diff.total_seconds() >= 4 * 3600:  # 4 hours * 3600 seconds/hour
-    #         self.last_run_start_time = current_time  # Update the last run start time to now
-    #         if self.wandb_run:
-    #             wandb.finish()  # End the current run
-    #         self.new_wandb_run()  # Start a new run
+    def check_and_update_wandb_run(self):
+        # Calculate the time difference between now and the last run start time
+        current_time = dt.datetime.now()
+        time_diff = current_time - self.last_run_start_time
+        # Check if 4 hours have passed since the last run start time
+        if time_diff.total_seconds() >= 10 * 60:  # 4 hours * 3600 seconds/hour
+            self.last_run_start_time = current_time  # Update the last run start time to now
+            if self.wandb_run:
+                wandb.finish()  # End the current run
+            self.new_wandb_run()  # Start a new run
 
-    # def new_wandb_run(self):
-    #     now = dt.datetime.now()
-    #     run_id = now.strftime("%Y-%m-%d_%H-%M-%S")
-    #     name = f"Validator-{self.uid}-{run_id}"
-    #     commit = self.get_git_commit_hash()
-    #     self.wandb_run = wandb.init(
-    #         name=name,
-    #         project="AudioSubnet_Valid",
-    #         entity="subnet16team",
-    #         config={
-    #             "uid": self.uid,
-    #             "hotkey": self.wallet.hotkey.ss58_address,
-    #             "run_name": run_id,
-    #             "type": "Validator",
-    #             "tao (stake)": self.tao,
-    #             "commit": commit,
-    #         },
-    #         tags=self.sys_info,
-    #         allow_val_change=True,
-    #         anonymous="allow",
-    #     )
-    #     bt.logging.debug(f"Started a new wandb run: {name}")
+    def new_wandb_run(self):
+        now = dt.datetime.now()
+        run_id = now.strftime("%Y-%m-%d_%H-%M-%S")
+        name = f"Validator-{self.uid}-{run_id}"
+        commit = self.get_git_commit_hash()
+        self.wandb_run = wandb.init(
+            name=name,
+            project="AudioSubnet_Valid",
+            entity="subnet16team",
+            config={
+                "uid": self.uid,
+                "hotkey": self.wallet.hotkey.ss58_address,
+                "run_name": run_id,
+                "type": "Validator",
+                "tao (stake)": self.tao,
+                "commit": commit,
+            },
+            tags=self.sys_info,
+            allow_val_change=True,
+            anonymous="allow",
+        )
+        bt.logging.debug(f"Started a new wandb run: {name}")
 
     async def run_async(self):
         step = 0
