@@ -115,7 +115,7 @@ class TextToSpeechService(AIModelService):
     
     def update_block(self):
         self.current_block = self.subtensor.block
-        if self.current_block - self.last_updated_block > 150:
+        if self.current_block - self.last_updated_block > 15:
             bt.logging.info(f"Updating weights. Last update was at block {self.last_updated_block}")
             bt.logging.info(f"Current block is {self.current_block}")
             self.update_weights(self.scores)
@@ -307,6 +307,7 @@ class TextToSpeechService(AIModelService):
 
         try:
             # Set weights on the Bittensor network
+            bt.logging.info(f"Setting weights for the subnet: {self.config.netuid}")
             result = self.subtensor.set_weights(
                 netuid=self.config.netuid,  # Subnet to set weights on
                 wallet=self.wallet,         # Wallet to sign set weights using hotkey
