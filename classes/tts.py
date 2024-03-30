@@ -115,7 +115,7 @@ class TextToSpeechService(AIModelService):
     
     def update_block(self):
         self.current_block = self.subtensor.block
-        if self.current_block - self.last_updated_block > 200:
+        if self.current_block - self.last_updated_block > 50:
             bt.logging.info(f"Updating weights. Last update was at block {self.last_updated_block}")
             bt.logging.info(f"Current block is {self.current_block}")
             self.update_weights(self.scores)
@@ -126,7 +126,7 @@ class TextToSpeechService(AIModelService):
         else:
             bt.logging.info(f"Updating weights. Last update was at block:  {self.last_updated_block}")
             bt.logging.info(f"Current block is: {self.current_block}")
-            bt.logging.info(f"Next update will be at block: {self.last_updated_block + 150}")
+            bt.logging.info(f"Next update will be at block: {self.last_updated_block + 50}")
             bt.logging.info(f"Skipping weight update. Last update was at block {self.last_updated_block}")
 
     def process_responses(self,filtered_axons, responses, prompt):
@@ -282,6 +282,7 @@ class TextToSpeechService(AIModelService):
     
     def update_weights(self, scores):
         # Process scores for blacklisted miners
+        MAX_WEIGHT_UPDATE_TRY = 3
         for idx, uid in enumerate(self.metagraph.uids):
             neuron = self.metagraph.neurons[uid]
             if neuron.coldkey in lib.BLACKLISTED_MINER_COLDKEYS or neuron.hotkey in lib.BLACKLISTED_MINER_HOTKEYS:
@@ -307,15 +308,17 @@ class TextToSpeechService(AIModelService):
 
         try:
             # Set weights on the Bittensor network
-            bt.logging.info(f"Setting weights for the subnet: {self.config.netuid}")
-            result = self.subtensor.set_weights(
-                netuid=self.config.netuid,  # Subnet to set weights on
-                wallet=self.wallet,         # Wallet to sign set weights using hotkey
-                uids=processed_uids,        # Uids of the miners to set weights for
-                weights=processed_weights, # Weights to set for the miners
-                wait_for_finalization=True,
-                version_key=self.version,
-            )
+            for i in range(MAX_WEIGHT_UPDATE_TRY):
+                bt.logging.info(f"Setting weights for the subnet: {self.config.netuid} with the iteration: {i+1}")
+                result = self.subtensor.set_weights(
+                    netuid=self.config.netuid,  # Subnet to set weights on
+                    wallet=self.wallet,         # Wallet to sign set weights using hotkey
+                    uids=processed_uids,        # Uids of the miners to set weights for
+                    weights=processed_weights, # Weights to set for the miners
+                    wait_for_finalization=False,
+                    wait_for_inclusion=False,
+                    version_key=self.version,
+                )
 
             if result:
                 bt.logging.success(f'Successfully set weights. result: {result}')
