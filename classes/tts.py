@@ -116,8 +116,8 @@ class TextToSpeechService(AIModelService):
     def update_block(self):
         self.current_block = self.subtensor.block
         if self.current_block - self.last_updated_block > 100:
-            bt.logging.info(f"Updating weights. Last update was at block {self.last_updated_block}")
-            bt.logging.info(f"Current block is {self.current_block}")
+            bt.logging.info(f"Updating weights. Last update was at block: {self.last_updated_block}")
+            bt.logging.info(f"Current block is for weight update is: {self.current_block}")
             self.update_weights(self.scores)
             self.last_updated_block = self.current_block
             bt.logging.info(f"Checking for github update.")                    
@@ -179,7 +179,7 @@ class TextToSpeechService(AIModelService):
             # Save the audio file
             if model_name == "suno/bark":
                 sampling_rate = 24000 
-            elif model_name == "elevenlabs/eleven": 
+            elif model_name == "elevenlabs/eleven" or model_name == "myshell-ai/MeloTTS-English": 
                 sampling_rate = 44000
             else:
                 sampling_rate = 16000
