@@ -99,7 +99,6 @@ class CorcelAPI:
     
     def get_TTM(self):
         prompt = self.generate_music_prompt()
-        bt.logging.info(f"Generated prompt for corcel ----------------------------------------- : {prompt}")
         data = {
             "messages": [{"role": "user", "content": prompt}],
             "miners_to_query": 3,
