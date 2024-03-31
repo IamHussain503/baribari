@@ -53,16 +53,15 @@ class AIModelController():
     async def run_services(self):
         while True:
             self.check_and_update_wandb_run()
-            # if isinstance(self.current_service, TextToSpeechService) and self.service["TextToSpeechService"]:
-            #     await self.current_service.run_async()
-            #     self.current_service = self.music_generation_service
-            # el
-            if isinstance(self.current_service, MusicGenerationService) and self.service["MusicGenerationService"]:
+            if isinstance(self.current_service, TextToSpeechService) and self.service["TextToSpeechService"]:
+                await self.current_service.run_async()
+                self.current_service = self.music_generation_service
+            elif isinstance(self.current_service, MusicGenerationService) and self.service["MusicGenerationService"]:
                 await self.current_service.run_async()
                 self.current_service = self.voice_cloning_service
-            # elif isinstance(self.current_service, VoiceCloningService) and self.service["VoiceCloningService"]:
-            #     await self.current_service.run_async()
-            #     self.current_service = self.text_to_speech_service
+            elif isinstance(self.current_service, VoiceCloningService) and self.service["VoiceCloningService"]:
+                await self.current_service.run_async()
+                self.current_service = self.text_to_speech_service
 
     def check_and_update_wandb_run(self):
         # Calculate the time difference between now and the last run start time
