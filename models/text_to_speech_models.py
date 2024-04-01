@@ -67,12 +67,14 @@ class ElevenLabsTTS:
             return audio
         except Exception as e:
             print(f"An error occurred while processing the input audio in 11 Labs: {e}")
+
 class MeloTTS:
     def __init__(self, model_path="myshell-ai/MeloTTS-English"):
         self._setup_environment()
         self.device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
         self.model = self._load_model()
         self.speaker_ids = self.model.hps.data.spk2id
+        
     def _setup_environment(self):
         if not os.path.isdir('MeloTTS'):
             os.system('git clone https://github.com/myshell-ai/MeloTTS.git')
@@ -80,7 +82,7 @@ class MeloTTS:
         sys.path.append('/root/baribari/MeloTTS/')
 
     def _load_model(self):
-        from MeloTTS.melo.api import TTS
+        from melo.api import TTS
         return TTS(language='EN', device=str(self.device))
     
     def generate_speech(self, text_input):
