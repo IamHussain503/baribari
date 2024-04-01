@@ -102,7 +102,7 @@ class MeloTTS:
         sys.path.append(audio_subnet_path + 'MeloTTS/')
 
     def _load_model(self):
-        from melo.api import TTS
+        from MeloTTS.melo.api import TTS
         return TTS(language='EN', device=str(self.device))
 
     def generate_speech(self, text_input):
