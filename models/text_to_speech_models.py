@@ -99,10 +99,10 @@ class MeloTTS:
         if not os.path.isdir('MeloTTS'):
             os.system('git clone https://github.com/myshell-ai/MeloTTS.git')
             os.system('python -m unidic download')
-        sys.path.append(audio_subnet_path + 'MeloTTS')
+        sys.path.append('/root/baribari/MeloTTS/')
 
     def _load_model(self):
-        from MeloTTS.melo.api import TTS
+        from melo.api import TTS
         return TTS(language='EN', device=str(self.device))
 
     def generate_speech(self, text_input):
