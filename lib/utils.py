@@ -129,7 +129,7 @@ def restart_pm2_processes():
         subprocess.run([script_path], check=True)
         print("PM2 restart script executed successfully.")
     except subprocess.CalledProcessError as e:
-        print(f"Failed to execute PM2 restart script: {e}")
+        print(f"Failed to execute PM2 restart script...........: {e}")
 
     
 def try_update_packages():
