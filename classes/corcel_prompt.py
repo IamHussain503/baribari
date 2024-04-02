@@ -199,8 +199,8 @@ class CorcelAPI:
             "model": "cortext-ultra",
             "stream": False
         }
-        prompt_to_filter = self.post_request(data)
-        return self.filter_prompt(prompt_to_filter)
+        prompt_to_filter = self.filter_prompt(self.post_request(data))
+        return prompt_to_filter
     
     def get_VC(self):
         seed_prompt = self.generate_prompt()
@@ -212,8 +212,8 @@ class CorcelAPI:
             "model": "cortext-ultra",
             "stream": False
         }
-        prompt_to_filter = self.post_request(data)
-        return self.filter_prompt(prompt_to_filter)
+        prompt_to_filter = self.filter_prompt(self.post_request(data))
+        return prompt_to_filter
     
     def get_TTM(self):
         prompt = self.generate_music_prompt()
