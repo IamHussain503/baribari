@@ -113,7 +113,7 @@ def handle_merge_conflict(repo):
         bt.logging.info(f"✅ Repo update success")
         return True
     except git.GitCommandError as e:
-        bt.logging.error(f"update failed: {e} Recommend you manually commit changes and update")
+        bt.logging.error(f"update failed: {e} Recommend you manually commit changes and update::::::::::")
         return False
 
 def version2number(version_string):
