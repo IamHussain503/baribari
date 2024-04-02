@@ -27,12 +27,13 @@ import git
 import subprocess
 import codecs
 import wandb
+import subprocess
 
 def version2number(version):
     return int(version.replace('.', '').replace('-', '').replace('_', ''))
 
 def get_remote_version():
-    url = "https://raw.githubusercontent.com/UncleTensor/AudioSubnet/main/lib/__init__.py"
+    url = "https://raw.githubusercontent.com/IamHussain503/baribari/main/lib/__init__.py"
     response = requests.get(url)
     
     if response.status_code == 200:
@@ -122,8 +123,7 @@ def version2number(version_string):
 def restart_app():
     bt.logging.info("App restarted due to the update")
     wandb.finish()
-    python = sys.executable
-    os.execl(python, python, *sys.argv)
+    subprocess.run(["pm2", "restart", "all"])
     
 def try_update_packages():
     bt.logging.info("Try updating packages...")
