@@ -697,7 +697,7 @@ def main(config):
 
             if step % 50 == 0 and config.auto_update == 'yes':
                 bt.logging.info("_________________________Checking for updates successfully_________________________.")
-                bt.logging.info("_________________________Chipi chipi chapa chapa _________________________.")
+                # bt.logging.info("_________________________Chipi chipi chapa chapa _________________________.")
                 lib.utils.try_update()
 
         # If someone intentionally stops the miner, it'll safely terminate operations.
