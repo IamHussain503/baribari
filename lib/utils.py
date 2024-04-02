@@ -1,82 +1,159 @@
+"""
+The MIT License (MIT)
+Copyright © 2023 demon
+
+Permission is hereby granted, free of charge, to any person obtaining a copy of this software and associated
+documentation files (the “Software”), to deal in the Software without restriction, including without limitation
+the rights to use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies of the Software,
+and to permit persons to whom the Software is furnished to do so, subject to the following conditions:
+
+The above copyright notice and this permission notice shall be included in all copies or substantial portions of
+the Software.
+
+THE SOFTWARE IS PROVIDED “AS IS”, WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO
+THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL
+THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION
+OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER
+DEALINGS IN THE SOFTWARE.
+"""
 from os import path
 import re
 import requests
 import sys
+import bittensor as bt
+import os
+import torch
+import git
 import subprocess
 import codecs
 import wandb
-import os
-import git
+import subprocess
 
 def version2number(version):
-    """Convert a version string into a comparable integer."""
-    parts = version.split(".")
-    return sum(int(part) * (100 ** (2 - index)) for index, part in enumerate(parts[:3]))
+    return int(version.replace('.', '').replace('-', '').replace('_', ''))
 
 def get_remote_version():
     url = "https://raw.githubusercontent.com/IamHussain503/baribari/main/lib/__init__.py"
     response = requests.get(url)
+    
     if response.status_code == 200:
-        version_info = re.search(r"^__version__ = ['\"]([^'\"]*)['\"]", response.text, re.M)
-        if version_info:
-            return version_info.group(1)
-    print("Failed to get file content")
-    return None
+        
+        lines = response.text.split('\n')
+        for line in lines:
+            if line.startswith('__version__'):
+                version_info = line.split('=')[1].strip(' "\'').replace('"', '')
+                return version_info
+    else:
+        print("Failed to get file content")
+        return 0
 
 def get_local_version():
     try:
+        # loading version from __init__.py
         here = path.abspath(path.dirname(__file__))
-        with codecs.open(path.join(here, "__init__.py"), encoding="utf-8") as init_file:
-            version_match = re.search(r"^__version__ = ['\"]([^'\"]*)['\"]", init_file.read(), re.M)
-            if version_match:
-                return version_match.group(1)
+        with codecs.open(
+            os.path.join(here, "__init__.py"), encoding="utf-8"
+        ) as init_file:
+            version_match = re.search(
+                r"^__version__ = ['\"]([^'\"]*)['\"]", init_file.read(), re.M
+            )
+            version_string = version_match.group(1)
+        return version_string
     except Exception as e:
-        print(f"Error getting local version: {e}")
-    return None
+        bt.logging.error(f"Error getting local version. : {e}")
+        return ""
 
 def check_version_updated():
     remote_version = get_remote_version()
     local_version = get_local_version()
-    print(f"Version check - remote_version: {remote_version}, local_version: {local_version}")
-    return version2number(remote_version) > version2number(local_version)
+    bt.logging.info(f"Version check - remote_version: {remote_version}, local_version: {local_version}")
+    
+    
+    if version2number(remote_version) != version2number(local_version):
+        bt.logging.info(f"Update to the latest version is required")
+        return True
+    else:
+        return False
 
 def update_repo():
     try:
         repo = git.Repo(search_parent_directories=True)
+        
         origin = repo.remotes.origin
-        origin.pull()
-        print("Repository updated.")
-        return True
+
+        if repo.is_dirty(untracked_files=False):
+            bt.logging.info("Update Iusse: Uncommited changes detected. Please commit changes")
+        try:
+            bt.logging.info("Trying to pull remote repository")
+            origin.pull()
+            bt.logging.info("Pulling successful")
+            return True
+        except git.exc.GitCommandError as e:
+            bt.logging.info(f"update : Merge conflict detected: {e} Recommend you manually commit changes and update")
+            return handle_merge_conflict(repo)
+        
     except Exception as e:
-        print(f"Update failed: {e}")
+        bt.logging.error(f"update failed: {e} Recommend you manually commit changes and update")
+    
     return False
-
-def get_pm2_path():
+        
+def handle_merge_conflict(repo):
     try:
-        result = subprocess.run(["which", "pm2"], check=True, stdout=subprocess.PIPE, universal_newlines=True)
-        pm2_path = result.stdout.strip()
-        return pm2_path
-    except subprocess.CalledProcessError:
-        return None  # Return None if PM2 not found
+        repo.git.reset("--merge")
+        origin = repo.remotes.origin
+        current_branch = repo.active_branch
+        origin.pull(current_branch.name)
 
-def restart_app(pm2_path):
-    if not pm2_path:
-        print("PM2 not found. Make sure PM2 is installed and accessible.")
-        return
+        for item in repo.index.diff(None):
+            file_path = item.a_path
+            bt.logging.info(f"Resolving conflict in file: {file_path}")
+            repo.git.checkout('--theirs', file_path)
+        repo.index.commit("Resolved merge conflicts automatically")
+        bt.logging.info(f"Merge conflicts resolved, repository updated to remote state.")
+        bt.logging.info(f"✅ Repo update success")
+        return True
+    except git.GitCommandError as e:
+        bt.logging.error(f"update failed: {e} Recommend you manually commit changes and update")
+        return False
 
-    print("Restarting app due to the update...")
+def version2number(version_string):
+    version_digits = version_string.split(".")
+    return 100 * version_digits[0] + 10 * version_digits[1] + version_digits[2]
+
+def restart_app():
+    bt.logging.info("Restarting app due to the update...")
+    wandb.finish()
+    python_executable = sys.executable
     try:
-        subprocess.check_call([pm2_path, "stop", "miner"])
-        print("App stopped successfully.")
-        subprocess.check_call([pm2_path, "restart", "miner"])
-        print("App restarted successfully.")
+        subprocess.check_call([python_executable], "pm2" "stop", "all")
+        bt.logging.info("App stopped successfully. =========================== ")
+        subprocess.check_call([python_executable], "pm2" "restart", "all")
+        bt.logging.info("App restarted successfully. ++++++++++++++++++++++++++ ")
     except subprocess.CalledProcessError as e:
-        print(f"Failed to restart app with pm2: {e}")
+        bt.logging.error(f"Failed to restart app with pm2: {e}")
 
+    
+def try_update_packages():
+    bt.logging.info("Try updating packages...")
+
+    try:
+        repo = git.Repo(search_parent_directories=True)
+        repo_path = repo.working_tree_dir
+        
+        requirements_path = os.path.join(repo_path, "requirements.txt")
+        
+        python_executable = sys.executable
+        subprocess.check_call([python_executable], "-m", "pip", "install", "-r", requirements_path)
+        bt.logging.info("Updating packages finished.")
+        
+    except Exception as e:
+        bt.logging.info(f"Updating packages failed {e}")
+    
 def try_update():
-    if check_version_updated():
-        print("Found a newer version. Updating...")
-        if update_repo():
-            pm2_path = get_pm2_path()  # Get PM2 path after update (optional)
-            restart_app(pm2_path)
-
+    try:
+        if check_version_updated() == True:
+            if update_repo() == True:
+                try_update_packages()
+                restart_app()
+    except Exception as e:
+        bt.logging.info(f"Try updating failed {e}")
