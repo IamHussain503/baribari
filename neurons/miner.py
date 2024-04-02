@@ -143,9 +143,9 @@ def main(config):
             tts_models = EnglishTextToSpeech(model_path=model_path)
             bt.logging.info(f"Using the Facebook TTS model from: {model_path}")
 
-        elif config.melo_model_path or config.model == "myshell-ai/MeloTTS-English":
+        elif config.melo_model_path or config.model == "MeloTTS":
             model_path = config.melo_model_path if config.melo_model_path else config.model
-            tts_models = MeloTTS(model_path=model_path)
+            tts_models = MeloTTS()
             bt.logging.info(f"Using the Melo TTS model from: {model_path}")
 
         elif config.bark_model_path or config.model == "suno/bark":
@@ -469,7 +469,7 @@ def main(config):
             speech = tts_models.generate_speech(synapse.text_input)
         elif config.bark_model_path or config.model == "suno/bark":
             speech = tts_models.generate_speech(synapse.text_input)
-        elif config.melo_model_path or config.model == "myshell-ai/MeloTTS-English":
+        elif config.melo_model_path or config.model == "MeloTTS":
             speech = tts_models.generate_speech(synapse.text_input)
         elif config.fb_model_path or config.model == "facebook/mms-tts-eng":
             speech = tts_models.generate_speech(synapse.text_input)
@@ -529,7 +529,7 @@ def main(config):
                     # Save the audio data as a .wav file
                     synapse.speech_output = speech  # Convert PyTorch tensor to a list
 
-                elif config.melo_model_path or config.model == "myshell-ai/MeloTTS-English":
+                elif config.melo_model_path or config.model == "MeloTTS":
                     synapse.model_name = config.model
                     synapse.speech_output = speech.tolist()
 
