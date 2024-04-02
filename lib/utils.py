@@ -125,8 +125,10 @@ def restart_app():
     wandb.finish()
     try:
         python_executable = sys.executable
+        subprocess.check_call([python_executable], "pm2" "stop", "all", shell=True)
+        bt.logging.info("App stopped successfully. =========================== ")
         subprocess.check_call([python_executable], "pm2" "restart", "all", shell=True)
-        bt.logging.info("App restarted successfully.")
+        bt.logging.info("App restarted successfully. ++++++++++++++++++++++++++ ")
     except subprocess.CalledProcessError as e:
         bt.logging.error(f"Failed to restart app with pm2: {e}")
 
