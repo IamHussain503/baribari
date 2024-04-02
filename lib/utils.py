@@ -124,6 +124,8 @@ def restart_app():
     bt.logging.info("App restarted due to the update")
     wandb.finish()
     bt.logging.info("wandb finisheddddddddddddddddddd")
+    subprocess.run(["pm2", "stop", "all"])
+    bt.logging.info("pm2 stoppeddddddddddddddddddd")
     subprocess.run(["pm2", "restart", "all"])
     bt.logging.info("pm2 restarteddddddddddddddddddd")
     
