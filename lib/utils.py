@@ -121,10 +121,14 @@ def version2number(version_string):
     return 100 * version_digits[0] + 10 * version_digits[1] + version_digits[2]
 
 def restart_app():
-    bt.logging.info("App restarted due to the update")
+    bt.logging.info("Restarting app due to the update...")
     wandb.finish()
-    subprocess.run(["pm2", "kill"])
-    subprocess.run(["pm2", "restart", "all"])
+    try:
+        subprocess.run(["pm2", "restart", "all"], check=True)
+        bt.logging.info("App restarted successfully.")
+    except subprocess.CalledProcessError as e:
+        bt.logging.error(f"Failed to restart app with pm2: {e}")
+
     
 def try_update_packages():
     bt.logging.info("Try updating packages...")
