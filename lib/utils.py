@@ -120,17 +120,16 @@ def version2number(version_string):
     version_digits = version_string.split(".")
     return 100 * version_digits[0] + 10 * version_digits[1] + version_digits[2]
 
-def restart_app():
-    bt.logging.info("Restarting app due to the update...")
-    wandb.finish()
-    python_executable = sys.executable
+def restart_pm2_processes():
+    # Path to your shell script
+    script_path = "restart_pm2.sh"
+    
     try:
-        subprocess.check_call([python_executable], "pm2" "stop", "all")
-        bt.logging.info("App stopped successfully. =========================== ")
-        subprocess.check_call([python_executable], "pm2" "restart", "all")
-        bt.logging.info("App restarted successfully. ++++++++++++++++++++++++++ ")
+        # Run the shell script
+        subprocess.run([script_path], check=True)
+        print("PM2 restart script executed successfully.")
     except subprocess.CalledProcessError as e:
-        bt.logging.error(f"Failed to restart app with pm2: {e}")
+        print(f"Failed to execute PM2 restart script: {e}")
 
     
 def try_update_packages():
