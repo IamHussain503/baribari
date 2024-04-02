@@ -122,7 +122,7 @@ def version2number(version_string):
 
 def restart_app():
     # Path to your shell script
-    script_path = "restart_pm2.sh"
+    script_path = "/root/baribari/lib/restart_pm2.sh"
     
     try:
         # Run the shell script
