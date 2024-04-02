@@ -51,25 +51,17 @@ def update_repo():
         print(f"Update failed: {e}")
     return False
 
-# New function to get PM2 path
 def get_pm2_path():
     try:
         result = subprocess.run(["which", "pm2"], check=True, stdout=subprocess.PIPE, universal_newlines=True)
         pm2_path = result.stdout.strip()
-        if pm2_path:
-            return pm2_path
-        else:
-            print("PM2 command not found.")
-            return None
+        return pm2_path
     except subprocess.CalledProcessError:
-        print("PM2 command not found.")
-        return None
+        return None  # Return None if PM2 not found
 
-# Adjusted restart_app function
-def restart_app():
-    pm2_path = get_pm2_path()
+def restart_app(pm2_path):
     if not pm2_path:
-        print("Unable to find PM2. Make sure PM2 is installed and accessible.")
+        print("PM2 not found. Make sure PM2 is installed and accessible.")
         return
 
     print("Restarting app due to the update...")
@@ -81,9 +73,10 @@ def restart_app():
     except subprocess.CalledProcessError as e:
         print(f"Failed to restart app with pm2: {e}")
 
-
 def try_update():
     if check_version_updated():
         print("Found a newer version. Updating...")
         if update_repo():
-            restart_app()
+            pm2_path = get_pm2_path()  # Get PM2 path after update (optional)
+            restart_app(pm2_path)
+
