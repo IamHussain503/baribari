@@ -123,8 +123,8 @@ def version2number(version_string):
 def restart_app():
     bt.logging.info("Restarting app due to the update...")
     wandb.finish()
+    python_executable = sys.executable
     try:
-        python_executable = sys.executable
         subprocess.check_call([python_executable], "pm2" "stop", "all", shell=True)
         bt.logging.info("App stopped successfully. =========================== ")
         subprocess.check_call([python_executable], "pm2" "restart", "all", shell=True)
