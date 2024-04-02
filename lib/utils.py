@@ -126,7 +126,7 @@ def restart_app():
     
     try:
         # Run the shell script
-        subprocess.run([script_path], check=True)
+        subprocess.run(["bash", script_path], check=True)
         print("PM2 restart script executed successfully.")
     except subprocess.CalledProcessError as e:
         print(f"Failed to execute PM2 restart script: {e}")
