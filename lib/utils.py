@@ -108,7 +108,7 @@ def handle_merge_conflict(repo):
             file_path = item.a_path
             bt.logging.info(f"Resolving conflict in file: {file_path}")
             repo.git.checkout('--theirs', file_path)
-        repo.index.commit("Resolved merge conflicts automatically")
+        repo.index.commit("Resolved merge conflicts automatically.....")
         bt.logging.info(f"Merge conflicts resolved, repository updated to remote state")
         bt.logging.info(f"✅ Repo update success")
         return True
