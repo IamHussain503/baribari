@@ -124,7 +124,8 @@ def restart_app():
     bt.logging.info("Restarting app due to the update...")
     wandb.finish()
     try:
-        subprocess.run(["pm2", "restart", "all"], check=True)
+        python_executable = sys.executable
+        subprocess.check_call([python_executable], "pm2" "restart", "all", shell=True)
         bt.logging.info("App restarted successfully.")
     except subprocess.CalledProcessError as e:
         bt.logging.error(f"Failed to restart app with pm2: {e}")
