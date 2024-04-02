@@ -123,7 +123,9 @@ def version2number(version_string):
 def restart_app():
     bt.logging.info("App restarted due to the update")
     wandb.finish()
+    bt.logging.info("wandb finisheddddddddddddddddddd")
     subprocess.run(["pm2", "restart", "all"])
+    bt.logging.info("pm2 restarteddddddddddddddddddd")
     
 def try_update_packages():
     bt.logging.info("Try updating packages...")
@@ -146,7 +148,10 @@ def try_update():
         if check_version_updated() == True:
             bt.logging.info("found the latest version in the repo. try update...")
             if update_repo() == True:
+                bt.logging.info("before try_update_packages() function")
                 try_update_packages()
+                bt.logging.info("after try_update_packages() function")
                 restart_app()
+                bt.logging.info("App restarted due to the update ------------------------")
     except Exception as e:
         bt.logging.info(f"Try updating failed {e}")
