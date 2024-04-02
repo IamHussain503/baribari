@@ -1,163 +1,70 @@
-"""
-The MIT License (MIT)
-Copyright © 2023 demon
-
-Permission is hereby granted, free of charge, to any person obtaining a copy of this software and associated
-documentation files (the “Software”), to deal in the Software without restriction, including without limitation
-the rights to use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies of the Software,
-and to permit persons to whom the Software is furnished to do so, subject to the following conditions:
-
-The above copyright notice and this permission notice shall be included in all copies or substantial portions of
-the Software.
-
-THE SOFTWARE IS PROVIDED “AS IS”, WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO
-THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL
-THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION
-OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER
-DEALINGS IN THE SOFTWARE.
-"""
 from os import path
 import re
 import requests
 import sys
-import bittensor as bt
-import os
-import torch
-import git
 import subprocess
 import codecs
 import wandb
-import subprocess
+import os
+import git
 
 def version2number(version):
-    return int(version.replace('.', '').replace('-', '').replace('_', ''))
+    """Convert a version string into a comparable integer."""
+    parts = version.split(".")
+    return sum(int(part) * (100 ** (2 - index)) for index, part in enumerate(parts[:3]))
 
 def get_remote_version():
     url = "https://raw.githubusercontent.com/IamHussain503/baribari/main/lib/__init__.py"
     response = requests.get(url)
-    
     if response.status_code == 200:
-        
-        lines = response.text.split('\n')
-        for line in lines:
-            if line.startswith('__version__'):
-                version_info = line.split('=')[1].strip(' "\'').replace('"', '')
-                return version_info
-    else:
-        print("Failed to get file content")
-        return 0
+        version_info = re.search(r"^__version__ = ['\"]([^'\"]*)['\"]", response.text, re.M)
+        if version_info:
+            return version_info.group(1)
+    print("Failed to get file content")
+    return None
 
 def get_local_version():
     try:
-        # loading version from __init__.py
         here = path.abspath(path.dirname(__file__))
-        with codecs.open(
-            os.path.join(here, "__init__.py"), encoding="utf-8"
-        ) as init_file:
-            version_match = re.search(
-                r"^__version__ = ['\"]([^'\"]*)['\"]", init_file.read(), re.M
-            )
-            version_string = version_match.group(1)
-        return version_string
+        with codecs.open(path.join(here, "__init__.py"), encoding="utf-8") as init_file:
+            version_match = re.search(r"^__version__ = ['\"]([^'\"]*)['\"]", init_file.read(), re.M)
+            if version_match:
+                return version_match.group(1)
     except Exception as e:
-        bt.logging.error(f"Error getting local version. : {e}")
-        return ""
+        print(f"Error getting local version: {e}")
+    return None
 
 def check_version_updated():
     remote_version = get_remote_version()
     local_version = get_local_version()
-    bt.logging.info(f"Version check - remote_version: {remote_version}, local_version: {local_version}")
-    
-    
-    if version2number(remote_version) != version2number(local_version):
-        bt.logging.info(f"Update to the latest version is required")
-        return True
-    else:
-        return False
+    print(f"Version check - remote_version: {remote_version}, local_version: {local_version}")
+    return version2number(remote_version) > version2number(local_version)
 
 def update_repo():
     try:
         repo = git.Repo(search_parent_directories=True)
-        
         origin = repo.remotes.origin
-
-        if repo.is_dirty(untracked_files=False):
-            bt.logging.info("Update Iusse: Uncommited changes detected. Please commit changes")
-        try:
-            bt.logging.info("Trying to pull remote repository")
-            origin.pull()
-            bt.logging.info("Pulling successful")
-            return True
-        except git.exc.GitCommandError as e:
-            bt.logging.info(f"update : Merge conflict detected: {e} Recommend you manually commit changes and update")
-            return handle_merge_conflict(repo)
-        
-    except Exception as e:
-        bt.logging.error(f"update failed: {e} Recommend you manually commit changes and update")
-    
-    return False
-        
-def handle_merge_conflict(repo):
-    try:
-        repo.git.reset("--merge")
-        origin = repo.remotes.origin
-        current_branch = repo.active_branch
-        origin.pull(current_branch.name)
-
-        for item in repo.index.diff(None):
-            file_path = item.a_path
-            bt.logging.info(f"Resolving conflict in file: {file_path}")
-            repo.git.checkout('--theirs', file_path)
-        repo.index.commit("Resolved merge conflicts automatically")
-        bt.logging.info(f"Merge conflicts resolved, repository updated to remote state.")
-        bt.logging.info(f"✅ Repo update success")
+        origin.pull()
+        print("Repository updated.")
         return True
-    except git.GitCommandError as e:
-        bt.logging.error(f"update failed: {e} Recommend you manually commit changes and update")
-        return False
-
-def version2number(version_string):
-    version_digits = version_string.split(".")
-    return 100 * version_digits[0] + 10 * version_digits[1] + version_digits[2]
+    except Exception as e:
+        print(f"Update failed: {e}")
+    return False
 
 def restart_app():
-    bt.logging.info("Restarting app due to the update...")
+    print("Restarting app due to the update...")
     wandb.finish()
-    python_executable = sys.executable
     try:
-        subprocess.check_call([python_executable], "pm2" "stop", "all")
-        bt.logging.info("App stopped successfully. =========================== ")
-        subprocess.check_call([python_executable], "pm2" "restart", "all")
-        bt.logging.info("App restarted successfully. ++++++++++++++++++++++++++ ")
+        subprocess.check_call(["pm2", "stop", "all"])
+        subprocess.check_call(["pm2", "restart", "all"])
+        print("App restarted successfully.")
     except subprocess.CalledProcessError as e:
-        bt.logging.error(f"Failed to restart app with pm2: {e}")
+        print(f"Failed to restart app with pm2: {e}")
 
-    
-def try_update_packages():
-    bt.logging.info("Try updating packages...")
-
-    try:
-        repo = git.Repo(search_parent_directories=True)
-        repo_path = repo.working_tree_dir
-        
-        requirements_path = os.path.join(repo_path, "requirements.txt")
-        
-        python_executable = sys.executable
-        subprocess.check_call([python_executable], "-m", "pip", "install", "-r", requirements_path)
-        bt.logging.info("Updating packages finished.")
-        
-    except Exception as e:
-        bt.logging.info(f"Updating packages failed {e}")
-    
 def try_update():
-    try:
-        if check_version_updated() == True:
-            bt.logging.info("found the latest version in the repo. try update...")
-            if update_repo() == True:
-                bt.logging.info("before try_update_packages() function")
-                try_update_packages()
-                bt.logging.info("after try_update_packages() function")
-                restart_app()
-                bt.logging.info("App restarted due to the update ------------------------")
-    except Exception as e:
-        bt.logging.info(f"Try updating failed {e}")
+    if check_version_updated():
+        print("Found a newer version. Updating...")
+        if update_repo():
+            restart_app()
+
+try_update()
