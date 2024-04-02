@@ -123,11 +123,8 @@ def version2number(version_string):
 def restart_app():
     bt.logging.info("App restarted due to the update")
     wandb.finish()
-    bt.logging.info("wandb finisheddddddddddddddddddd")
     subprocess.run(["pm2", "stop", "all"])
-    bt.logging.info("pm2 stoppeddddddddddddddddddd")
     subprocess.run(["pm2", "restart", "all"])
-    bt.logging.info("pm2 restarteddddddddddddddddddd")
     
 def try_update_packages():
     bt.logging.info("Try updating packages...")
