@@ -108,12 +108,12 @@ def handle_merge_conflict(repo):
             file_path = item.a_path
             bt.logging.info(f"Resolving conflict in file: {file_path}")
             repo.git.checkout('--theirs', file_path)
-        repo.index.commit("Resolved merge conflicts automatically............")
-        bt.logging.info(f"Merge conflicts resolved, repository updated to remote state......")
+        repo.index.commit("Resolved merge conflicts automatically")
+        bt.logging.info(f"Merge conflicts resolved, repository updated to remote state")
         bt.logging.info(f"✅ Repo update success")
         return True
     except git.GitCommandError as e:
-        bt.logging.error(f"update failed: {e} Recommend you manually commit changes and update......")
+        bt.logging.error(f"update failed: {e} Recommend you manually commit changes and update")
         return False
 
 def version2number(version_string):
@@ -129,7 +129,7 @@ def restart_app():
         subprocess.run([script_path], check=True)
         print("PM2 restart script executed successfully.")
     except subprocess.CalledProcessError as e:
-        print(f"Failed to execute PM2 restart script...........: {e}")
+        print(f"Failed to execute PM2 restart script: {e}")
 
     
 def try_update_packages():
