@@ -109,7 +109,7 @@ def handle_merge_conflict(repo):
             bt.logging.info(f"Resolving conflict in file: {file_path}")
             repo.git.checkout('--theirs', file_path)
         repo.index.commit("Resolved merge conflicts automatically")
-        bt.logging.info(f"Merge conflicts resolved, repository updated to remote state.")
+        bt.logging.info(f"Merge conflicts resolved, repository updated to remote state......")
         bt.logging.info(f"✅ Repo update success")
         return True
     except git.GitCommandError as e:
@@ -120,7 +120,7 @@ def version2number(version_string):
     version_digits = version_string.split(".")
     return 100 * version_digits[0] + 10 * version_digits[1] + version_digits[2]
 
-def restart_pm2_processes():
+def restart_app():
     # Path to your shell script
     script_path = "restart_pm2.sh"
     
