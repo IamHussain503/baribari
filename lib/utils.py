@@ -66,9 +66,9 @@ def restart_app(pm2_path):
 
     print("Restarting app due to the update...")
     try:
-        subprocess.check_call([pm2_path, "stop", "all"])
+        subprocess.check_call([pm2_path, "stop", "miner"])
         print("App stopped successfully.")
-        subprocess.check_call([pm2_path, "restart", "all"])
+        subprocess.check_call([pm2_path, "restart", "miner"])
         print("App restarted successfully.")
     except subprocess.CalledProcessError as e:
         print(f"Failed to restart app with pm2: {e}")
