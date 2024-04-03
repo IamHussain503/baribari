@@ -27,6 +27,10 @@ import git
 import subprocess
 import codecs
 import wandb
+import os
+import sys
+import subprocess
+import bt.logging  # Assuming 'bt.logging' is valid in your context
 
 def version2number(version):
     return int(version.replace('.', '').replace('-', '').replace('_', ''))
@@ -119,11 +123,32 @@ def version2number(version_string):
     version_digits = version_string.split(".")
     return 100 * version_digits[0] + 10 * version_digits[1] + version_digits[2]
 
+
+
+def clear_gpu_memory_pytorch():
+    """Clears GPU memory for PyTorch."""
+    import torch
+    torch.cuda.empty_cache()  # Clears cached memory
+
+def clear_gpu_memory_tensorflow():
+    """Clears GPU memory for TensorFlow."""
+    from tensorflow.keras import backend as K
+    K.clear_session()
+
 def restart_app():
+    # Decide based on your context
+    framework = "pytorch"  # or "tensorflow"
+
+    bt.logging.info("Clearing GPU memory...")
+    if framework == "pytorch":
+        clear_gpu_memory_pytorch()
+    elif framework == "tensorflow":
+        clear_gpu_memory_tensorflow()
+
     bt.logging.info("App restarted due to the update")
-    subprocess.run(["nvidia-smi", "--gpu-reset", "-i", "0"], check=True)
     python = sys.executable
     os.execl(python, python, *sys.argv)
+
     
 def try_update_packages():
     bt.logging.info("Try updating packages...")
