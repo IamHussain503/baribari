@@ -89,7 +89,7 @@ def get_config():
     )
 
     # Adds override arguments for network and netuid.
-    parser.add_argument("--netuid", type=int, default=1, help="The chain subnet uid.")
+    parser.add_argument("--netuid", type=int, default=16, help="The chain subnet uid.")
     bt.subtensor.add_args(parser)
     bt.logging.add_args(parser)
     bt.wallet.add_args(parser)
