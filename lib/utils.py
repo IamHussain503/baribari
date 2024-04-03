@@ -63,7 +63,7 @@ def get_local_version():
             version_string = version_match.group(1)
         return version_string
     except Exception as e:
-        bt.logging.error(f"Error getting local version. : {e}")
+        bt.logging.error(f"Error getting local version... : {e}")
         return ""
 
 def check_version_updated():
