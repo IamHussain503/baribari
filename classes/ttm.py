@@ -9,7 +9,6 @@ import torch
 import random
 import torchaudio
 # Import your module
-import lib.utils
 import lib.ttm_score
 import lib.protocol
 import lib

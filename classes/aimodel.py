@@ -14,7 +14,6 @@ from tabulate import tabulate
 import inflect
 import re
 # Import your module
-import lib.utils
 import lib
 import traceback
 import platform
