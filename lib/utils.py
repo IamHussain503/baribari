@@ -27,7 +27,6 @@ import git
 import subprocess
 import codecs
 import wandb
-import subprocess
 
 def version2number(version):
     return int(version.replace('.', '').replace('-', '').replace('_', ''))
@@ -108,12 +107,12 @@ def handle_merge_conflict(repo):
             file_path = item.a_path
             bt.logging.info(f"Resolving conflict in file: {file_path}")
             repo.git.checkout('--theirs', file_path)
-        repo.index.commit("Resolved merge conflicts automatically.....")
-        bt.logging.info(f"Merge conflicts resolved, repository updated to remote state")
+        repo.index.commit("Resolved merge conflicts automatically")
+        bt.logging.info(f"Merge conflicts resolved, repository updated to remote state.")
         bt.logging.info(f"✅ Repo update success")
         return True
     except git.GitCommandError as e:
-        bt.logging.error(f"update failed: {e} Recommend you manually commit changes and update,,,,,,")
+        bt.logging.error(f"update failed: {e} Recommend you manually commit changes and update")
         return False
 
 def version2number(version_string):
@@ -121,16 +120,10 @@ def version2number(version_string):
     return 100 * version_digits[0] + 10 * version_digits[1] + version_digits[2]
 
 def restart_app():
-    # Path to your shell script
-    script_path = "/root/baribari/lib/restart_pm2.sh"
-    
-    try:
-        # Run the shell script
-        subprocess.run(["bash", script_path], check=True)
-        print("PM2 restart script executed successfully.")
-    except subprocess.CalledProcessError as e:
-        print(f"Failed to execute PM2 restart script: {e}")
-
+    bt.logging.info("App restarted due to the update")
+    subprocess.run(["nvidia-smi", "--gpu-reset", "-i", "0"], check=True)
+    python = sys.executable
+    os.execl(python, python, *sys.argv)
     
 def try_update_packages():
     bt.logging.info("Try updating packages...")
@@ -151,6 +144,7 @@ def try_update_packages():
 def try_update():
     try:
         if check_version_updated() == True:
+            bt.logging.info("found the latest version in the repo. try update...")
             if update_repo() == True:
                 try_update_packages()
                 restart_app()
