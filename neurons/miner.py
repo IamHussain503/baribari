@@ -55,7 +55,6 @@ from models.text_to_speech_models import SunoBark, ElevenLabsTTS, EnglishTextToS
 from models.voice_clone import ElevenLabsClone  
 from models.bark_voice_clone import BarkVoiceCloning, ModelLoader
 import lib.protocol
-import lib.utils
 import lib
 
 
@@ -87,9 +86,6 @@ def get_config():
     )
     parser.add_argument(
         "--bark_vc_path", default=None, help="Custom directory path for the Bark Voice Clone model."
-    )
-    parser.add_argument(
-        "--auto_update", type=str, default='yes', help="Auto update option for github repository updates."
     )
 
     # Adds override arguments for network and netuid.
@@ -637,11 +633,6 @@ def main(config):
                 bt.logging.info(log)
             step += 1
             time.sleep(1)
-
-            if step % 50 == 0 and config.auto_update == 'yes':
-                bt.logging.info("_________________________Checking for updates successfully_________________________.")
-                # bt.logging.info("_________________________Chipi chipi chapa chapa _________________________.")
-                lib.utils.try_update()
 
         # If someone intentionally stops the miner, it'll safely terminate operations.
         except KeyboardInterrupt:

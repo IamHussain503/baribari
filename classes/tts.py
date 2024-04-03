@@ -120,9 +120,6 @@ class TextToSpeechService(AIModelService):
             bt.logging.info(f"Current block is for weight update is: {self.current_block}")
             self.update_weights(self.scores)
             self.last_updated_block = self.current_block
-            bt.logging.info(f"Checking for github update.")                    
-            if self.config.auto_update == 'yes':
-                lib.utils.try_update()
         else:
             bt.logging.info(f"Updating weights. Last update was at block:  {self.last_updated_block}")
             bt.logging.info(f"Current block is: {self.current_block}")
