@@ -139,7 +139,7 @@ def restart_app():
     # Decide based on your context
     framework = "pytorch"  # or "tensorflow"
 
-    bt.logging.info("Clearing GPU memory...")
+    bt.logging.info("Clearing GPU memory.......")
     if framework == "pytorch":
         clear_gpu_memory_pytorch()
     elif framework == "tensorflow":
