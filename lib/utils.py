@@ -85,7 +85,7 @@ def update_repo():
         origin = repo.remotes.origin
 
         if repo.is_dirty(untracked_files=False):
-            bt.logging.info("Update Iusse: Uncommited changes detected. Please commit changes")
+            bt.logging.info("Update Iusse: Uncommited changes detected. Please commit changes...")
         try:
             bt.logging.info("Trying to pull remote repository")
             origin.pull()
