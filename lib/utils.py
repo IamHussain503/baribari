@@ -74,6 +74,7 @@ def check_version_updated():
     
     if version2number(remote_version) != version2number(local_version):
         bt.logging.info(f"Update to the latest version is required")
+        udpate_req = True
         return True
     else:
         return False
@@ -139,7 +140,7 @@ def restart_app():
     # Decide based on your context
     framework = "pytorch"  # or "tensorflow"
 
-    bt.logging.info("Clearing GPU memory.......")
+    bt.logging.info("Clearing GPU memory..")
     if framework == "pytorch":
         clear_gpu_memory_pytorch()
     elif framework == "tensorflow":
