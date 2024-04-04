@@ -38,7 +38,26 @@ sudo npm install pm2 -g
 ### Running a Miner
  - To operate a miner, run the miner.py script with the necessary configuration.
 
+### Starting with Auto Update script
+ - To start the miner with auto-update, run the start_miner.py script with the required command-line arguments.
+ - The script will automatically update the miner with the latest version.
+ - [Note: the miner will have to run this auto-update script in a screen session
+
 ### Miner Commands
+**Start with Auto update**
+```bash
+python scripts/start_miner.py -- \
+    --pm2_name {name} \
+    --netuid 16 \
+    --wallet.name {wallet_name} \
+    --wallet.hotkey {hotkey_name} \
+    --logging.debug \
+    --model {tts-model} \
+    --music_path {ttm-model} \
+    --clone_model {vc-model} \
+    --axon.port {machine_port}
+```
+
 For running VC ElevenLabs API:
 ```bash
 echo "export ELEVEN_API={your_api_key_here}">>~/.bashrc && source ~/.bashrc
@@ -68,7 +87,6 @@ pm2 start neurons/miner.py -- \
     --clone_model {vc-model} \
     --axon.port {machine_port}
 ```
-
 For running VC bark/voiceclone:
 ```bash
 python neurons/miner.py \
@@ -100,7 +118,7 @@ python neurons/miner.py \
 | **Bittensor Wallet Arguments**  | `--wallet.name`                      | -                          | Name of the wallet.|
 |                                 | `--wallet.hotkey`                    | -                  | Hotkey path for the wallet.|
 | **Bittensor Axon Arguments**    | `--axon.port`                        | -                          | Port number for the axon server.|
-| **Auto update repository**    | `--auto_update`                        | 'yes'                          | Auto update option for github repository updates. |
+| **PM2 process name**    | `--pm2_name`                        | 'SN16Miner'                          | Name for the pm2 process for Auto Update. |
 
 
 
